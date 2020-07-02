@@ -10,10 +10,13 @@ class Sakurajima:
         username=None,
         userId=None,
         authToken=None,
+        xsrf = None,
         endpoint="https://aniwatch.me/api/ajax/APIHandle",
     ):
-        xsrf_token = self.__generate_xsrf_token()
-        self.headers = {"X-XSRF-TOKEN": xsrf_token}
+        xsrf_token = xsrf
+        self.headers = {"X-XSRF-TOKEN": xsrf_token,
+                        "USER_AGENT" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36",
+                        }
         self.cookies = {"XSRF-TOKEN": xsrf_token}
         self.API_URL = endpoint
         if username is not None and userId is not None and authToken is not None:
@@ -23,7 +26,7 @@ class Sakurajima:
                 + str(userId)
                 + ',"username":"'
                 + str(username)
-                + '","usergroup":4,"player_lang":1,"player_quality":0,"player_time_left_side":2,"player_time_right_side":3,"screen_orientation":1,"nsfw":1,"chrLogging":1,"mask_episode_info":0,"blur_thumbnails":0,"autoplay":1,"preview_thumbnails":1,"update_watchlist":1,"playheads":1,"seek_time":5,"cover":null,"title":"Member","premium":1,"lang":"en-US","auth":"'
+                + '","usergroup":4,"player_lang":1,"player_quality":0,"player_time_left_side":2,"player_time_right_side":3,"screen_orientation":1,"nsfw":0,"chrLogging":1,"mask_episode_info":0,"blur_thumbnails":0,"autoplay":1,"preview_thumbnails":1,"update_watchlist":1,"playheads":1,"seek_time":5,"cover":null,"title":"Member","premium":1,"lang":"en-US","auth":"'
                 + str(authToken)
                 + '","remember_login":true}'
             )
@@ -59,7 +62,7 @@ class Sakurajima:
         with requests.post(
             self.API_URL, headers=self.headers, json=data, cookies=self.cookies
         ) as url:
-            return json.loads(url.text)
+            return url.text
 
     def get_episode(self, episode_id, lang="en-US"):
         data = {
@@ -121,7 +124,7 @@ class Sakurajima:
         return self.__post(data)
 
     def get_random_anime(self):
-        data = {"controller": "Anime", "action": "getRandomAnime"}
+        data = {"controller": "Anime", "action": "getRandomAnime"} #"type" : [0], 'excludeAnimeList' : False}
         return self.__post(data)
 
     def get_airing_anime(self, randomize=False):
